@@ -58,7 +58,7 @@ def parse_answer(response):
 
 
 def parse_judge_json(text):
-    """从 Judge 输出解析 JSON"""
+    """从 Judge 输出解析 JSON   返回一个result字典，表示fluency、factuality、instruction_following的分数"""
     for pattern in [r"```(?:json)?\s*(\{[^`]*\})\s*```", r"(\{[^{}]*\})"]:
         for raw in re.findall(pattern, text, re.DOTALL | re.IGNORECASE):
             try:
@@ -244,7 +244,7 @@ def compute_logprobs(model, outputs, completion_len):
 
 
 def create_eos_mask(completion_ids, eos_token_id):
-    """创建 EOS mask（只计算到第一个 EOS）"""
+    """创建 EOS mask（只计算到第一个 EOS）  返回需要计算的地方为1"""
     is_eos = completion_ids == eos_token_id
     eos_idx = torch.full((is_eos.size(0),), is_eos.size(1), dtype=torch.long, device=completion_ids.device)
     eos_idx[is_eos.any(dim=1)] = is_eos.int().argmax(dim=1)[is_eos.any(dim=1)]
