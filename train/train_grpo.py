@@ -244,7 +244,7 @@ def compute_logprobs(model, outputs, completion_len):
 
 
 def create_eos_mask(completion_ids, eos_token_id):
-    """创建 EOS mask（只计算到第一个 EOS）  返回需要计算的地方为1"""
+    """创建 EOS mask（只计算到第一个 EOS）  返回需要计算的地方为1   不关注后面补充的eos token"""
     is_eos = completion_ids == eos_token_id
     eos_idx = torch.full((is_eos.size(0),), is_eos.size(1), dtype=torch.long, device=completion_ids.device)
     eos_idx[is_eos.any(dim=1)] = is_eos.int().argmax(dim=1)[is_eos.any(dim=1)]
@@ -407,15 +407,15 @@ if __name__ == "__main__":
     parser.add_argument("--max_gen_len", type=int, default=512)
     
     # 路径
-    parser.add_argument("--data_path", type=str, default="")
+    parser.add_argument("--data_path", type=str, default="/root/autodl-tmp/MiniLLM/benchmark/mini_bench/200_test_shuffled.jsonl")
     parser.add_argument("--tokenizer_path", type=str, default="../tokenizer_15k")
     parser.add_argument("--sft_model_path", type=str, 
-                       default="../out_think_distill/exp_1/h768_l12_bs128_lr2e-05/global_step_2971/sft_768.pth")
+                       default="/root/autodl-tmp/MiniLLM/thinking_distill_768.pth")
     
     # GRPO 参数
     parser.add_argument("--num_generations", type=int, default=4)
     parser.add_argument("--beta", type=float, default=0.05)
-    parser.add_argument("--judge_api_key", type=str, default='')
+    parser.add_argument("--judge_api_key", type=str, default='sk-c2226abd6fc743b7a9d7cc2ec7faf1ac')
     parser.add_argument("--judge_model", type=str, default="deepseek-chat")
     
     # 控制
@@ -457,7 +457,7 @@ if __name__ == "__main__":
     swanlab_run = None
     if args.use_swanlab and is_main_process():
         import swanlab
-        swanlab.login(api_key="4jqfbuJs9zDRcLAMPoDQv")
+        swanlab.login(api_key="7lpHqvXjsK7OYhGJGHeCv")
         swanlab_run = swanlab.init(project=args.swanlab_project, experiment_name=run_name,
                                    id=ckp_data.get('swanlab_id') if ckp_data else None, config=vars(args))
         Logger(f'SwanLab: {run_name}')
